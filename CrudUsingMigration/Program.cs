@@ -10,15 +10,18 @@ using System.Text;
 using System.Security.Claims;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 string connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<MainContext>(option => option.UseSqlServer(connectionString));
 builder.Services.AddScoped<IPersonRepository, PersonRepository>();
+builder.Services.AddScoped<IUserDetails, UserDetails>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
 /*Jwt Authentication*/
 builder.Services.AddAuthentication(options =>
 {
@@ -27,6 +30,8 @@ builder.Services.AddAuthentication(options =>
     options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
 }).AddJwtBearer(o =>
 {
+    o.RequireHttpsMetadata = false;
+    o.SaveToken = true;
     o.TokenValidationParameters = new TokenValidationParameters
     {
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
@@ -35,10 +40,11 @@ builder.Services.AddAuthentication(options =>
             (Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
         ValidateIssuer = true,
         ValidateAudience = true,
-        ValidateLifetime = false,
+        ValidateLifetime = true,
         ValidateIssuerSigningKey = true
     };
 });
+builder.Services.AddScoped<IJwtSecurity, JwtSecurity>();
 builder.Services.AddAuthorization();
 var app = builder.Build();
 app.UseHttpsRedirection();
@@ -79,9 +85,7 @@ app.MapPost("/security/createToken",
 });
 /*Jwt Authentication end*/
 // Add services to the container.
-
-
-
+var app = builder.Build();
 app.UseRouting();
 app.UseStaticFiles();
 builder.Services.AddCors();
