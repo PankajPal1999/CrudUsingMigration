@@ -19,6 +19,8 @@ builder.Services.AddDbContext<MainContext>(option => option.UseSqlServer(connect
 builder.Services.AddScoped<IPersonRepository, PersonRepository>();
 builder.Services.AddScoped<IUserDetails, UserDetails>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 /*Jwt Authentication*/
 builder.Services.AddAuthentication(options =>
@@ -44,10 +46,43 @@ builder.Services.AddAuthentication(options =>
 });
 builder.Services.AddScoped<IJwtSecurity, JwtSecurity>();
 builder.Services.AddAuthorization();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-
+var app = builder.Build();
+app.UseHttpsRedirection();
+app.MapGet("/security/getMessage", () => "Hello World!").RequireAuthorization();
+app.MapPost("/security/createToken",
+[AllowAnonymous] (User user) =>
+{
+    if (user.UserName == "pankaj" && user.Password == "pankaj123")
+    {
+        var issuer = builder.Configuration["Jwt:Issuer"];
+        var audience = builder.Configuration["Jwt:Audience"];
+        var key = Encoding.ASCII.GetBytes
+        (builder.Configuration["Jwt:Key"]);
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(new[]
+            {
+                new Claim("Id", Guid.NewGuid().ToString()),
+                new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
+                new Claim(JwtRegisteredClaimNames.Email, user.UserName),
+                new Claim(JwtRegisteredClaimNames.Jti,
+                Guid.NewGuid().ToString())
+             }),
+            Expires = DateTime.UtcNow.AddMinutes(5),
+            Issuer = issuer,
+            Audience = audience,
+            SigningCredentials = new SigningCredentials
+            (new SymmetricSecurityKey(key),
+            SecurityAlgorithms.HmacSha512Signature)
+        };
+        var tokenHandler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
+        var token = tokenHandler.CreateToken(tokenDescriptor);
+        var jwtToken = tokenHandler.WriteToken(token);
+        var stringToken = tokenHandler.WriteToken(token);
+        return Results.Ok(stringToken);
+    }
+    return Results.Unauthorized();
+});
 /*Jwt Authentication end*/
 // Add services to the container.
 var app = builder.Build();
