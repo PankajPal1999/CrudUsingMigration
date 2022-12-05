@@ -10,5 +10,7 @@ namespace CrudUsingMigration.Context
         }
         public DbSet<Person> Persons { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<Categorie> Categories { get; set; }
+        public DbSet<Products> Products { get; set; }
     }
 }
