@@ -28,9 +28,14 @@ namespace CrudUsingMigration.Data
             await _mainContext.SaveChangesAsync();
             return true;
         }
-        public async Task<List<Products>> GetProductDetail()
+        public async Task<List<Products>> GetProductDetail(int page)
         {
-            var productdetail = await _mainContext.Products.ToListAsync();
+
+            var pageResults = 6f;
+            var pageCount = Math.Ceiling(_mainContext.Products.Count() / pageResults);
+            var productdetail = await _mainContext.Products
+                .Skip((page - 1) * (int)pageResults).Take((int)pageResults).ToListAsync();
+            //var productdetail = await _mainContext.Products.ToListAsync();
             return productdetail;
         }
         public IEnumerable<Products> GetById(int id)

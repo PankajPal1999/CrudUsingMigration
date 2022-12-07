@@ -1,4 +1,6 @@
-﻿namespace CrudUsingMigration.Models
+﻿using CrudUsingMigration.Migrations;
+
+namespace CrudUsingMigration.Models
 {
     public class PaginationClass
     { 

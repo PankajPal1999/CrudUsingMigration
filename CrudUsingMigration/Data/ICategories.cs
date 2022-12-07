@@ -4,7 +4,7 @@ namespace CrudUsingMigration.Data
 {
     public interface ICategories
     {
-        public Task<List<Categorie>> GetCategories();
+        public Task<List<Categorie>> GetCategories(int page);
         public Task<bool> PostCategories(Categorie categories);
         Task<bool> Update(int id, Categorie categorie);
         Task<bool> Delete(int id);

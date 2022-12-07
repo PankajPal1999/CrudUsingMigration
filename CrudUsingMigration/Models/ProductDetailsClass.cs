@@ -11,6 +11,6 @@ namespace CrudUsingMigration.Models
         public string ProductTitle { get; set; }
         public string SellingPrice { get; set; }
         public int CategoryId { get; set; }
-
+        public string categoryName { get; set; }
     }
 }

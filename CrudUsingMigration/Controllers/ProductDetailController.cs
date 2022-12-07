@@ -3,6 +3,7 @@ using CrudUsingMigration.Data;
 using CrudUsingMigration.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CrudUsingMigration.Controllers
 {
@@ -40,14 +41,23 @@ namespace CrudUsingMigration.Controllers
         [HttpGet]
         [Route("GetProduct")]
 
-        public async Task<ActionResult<List<Products>>> GetProduct()
+        public async Task<ActionResult<List<Products>>> GetProduct(int pages)
         {
-            var ProductList = await productDetail.GetProductDetail();
+            var ProductList = await productDetail.GetProductDetail(pages);
+            _mainContext.Products.Include(x => x.Categories).Select(c => c.Categories.CategoryName).ToList();
+
             if (ProductList == null)
             {
                 throw new ArgumentNullException(nameof(ProductList));
             }
-            return Ok(ProductList);
+            var response = new ProductPagination
+            {
+                productDetails = ProductList ,
+                Pages = (int)Math.Ceiling(_mainContext.Products.Count() / 6f),
+                CurrentPages = pages,
+                TotalPerson = _mainContext.Products.Count()
+            };
+            return Ok(response);
         }
         [HttpGet]
         [Route("GetById")]

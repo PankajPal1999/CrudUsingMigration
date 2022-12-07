@@ -29,8 +29,8 @@ namespace CrudUsingMigration.Controllers
             }
             try
             {
-                await CategoriesRepository.PostCategories(categorie);
-                return Ok(categorie);
+               var y= await CategoriesRepository.PostCategories(categorie);
+                return Ok(y);
             }
             catch (Exception e)
             {
@@ -40,14 +40,21 @@ namespace CrudUsingMigration.Controllers
         [HttpGet]
         [Route("GetCategories")]
 
-        public async Task<ActionResult<List<Categorie>>> GetCategories()
+        public async Task<ActionResult<List<Categorie>>> GetCategories(int pages)
         {
-            var CategorieList = await CategoriesRepository.GetCategories();
+            var CategorieList = await CategoriesRepository.GetCategories(pages);
             if (CategorieList == null)
             {
                 throw new ArgumentNullException(nameof(CategorieList));
             }
-            return Ok(CategorieList);
+            var response = new Categorypagination
+            {
+                categories = CategorieList,
+                Pages = (int)Math.Ceiling(_mainContext.Categories.Count() / 6f),
+                CurrentPages = pages,
+                TotalPerson = _mainContext.Categories.Count()
+            };
+            return Ok(response);
         }
         [HttpGet]
         [Route("GetById")]

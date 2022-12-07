@@ -4,7 +4,7 @@ namespace CrudUsingMigration.Data
 {
     public interface IProductDetail
     {
-        public Task<List<Products>> GetProductDetail();
+        public Task<List<Products>> GetProductDetail(int page);
         public Task<bool> PostProductDetail(ProductDetailsClass productdetailsclass);
         Task<bool> Update(int id, Products products);
         Task<bool> Delete(int id);
