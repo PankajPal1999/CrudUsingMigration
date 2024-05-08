@@ -1,5 +1,4 @@
 ﻿using CrudUsingMigration.Context;
-using CrudUsingMigration.Migrations;
 using CrudUsingMigration.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;

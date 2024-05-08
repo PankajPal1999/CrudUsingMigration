@@ -11,6 +11,7 @@ using System.Security.Claims;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
@@ -46,6 +47,31 @@ builder.Services.AddAuthentication(options =>
 });
 builder.Services.AddScoped<IJwtSecurity, JwtSecurity>();
 builder.Services.AddAuthorization();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Your API", Version = "v1" });
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer"
+    });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] { }
+        }
+    });
+});
+
 var app = builder.Build();
 app.UseHttpsRedirection();
 app.MapGet("/security/getMessage", () => "Hello World!").RequireAuthorization();
@@ -85,7 +111,8 @@ app.MapPost("/security/createToken",
 });
 /*Jwt Authentication end*/
 // Add services to the container.
-var app = builder.Build();
+//var app = builder.Build();
+
 app.UseRouting();
 app.UseStaticFiles();
 builder.Services.AddCors();
@@ -102,7 +129,14 @@ app.MapControllerRoute(
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseAuthentication();
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Your API V1");
+        // Optionally, configure other SwaggerUI settings
+    });
+
 }
 
 app.UseHttpsRedirection();

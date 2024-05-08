@@ -8,6 +8,7 @@ using System.Collections.Generic;
 
 namespace CrudUsingMigration.Controllers
 {
+  
     [Route("api/[controller]")]
     [ApiController]
    
@@ -47,7 +48,7 @@ namespace CrudUsingMigration.Controllers
         
         public async Task<ActionResult<List<User>>> GetUserList()
         {
-            var UserList =await _userRepository.GetUserList();
+            var UserList = await _userRepository.GetUserList();
             if (UserList == null)
             {
                 throw new ArgumentNullException(nameof(UserList));

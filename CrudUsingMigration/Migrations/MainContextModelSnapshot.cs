@@ -24,10 +24,7 @@ namespace CrudUsingMigration.Migrations
             modelBuilder.Entity("CrudUsingMigration.Models.Person", b =>
                 {
                     b.Property<int>("Personid")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Personid"));
 
                     b.Property<string>("personaddress")
                         .IsRequired()
@@ -44,15 +41,11 @@ namespace CrudUsingMigration.Migrations
 
             modelBuilder.Entity("CrudUsingMigration.Models.User", b =>
                 {
-                    b.Property<int>("Userid")
+                    b.Property<int>("Personid")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Userid"));
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Personid"));
 
                     b.Property<string>("Password")
                         .IsRequired()
@@ -62,9 +55,29 @@ namespace CrudUsingMigration.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Userid");
+                    b.Property<int>("Userid")
+                        .HasColumnType("int");
+
+                    b.HasKey("Personid");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("CrudUsingMigration.Models.Person", b =>
+                {
+                    b.HasOne("CrudUsingMigration.Models.User", "users")
+                        .WithOne("Person")
+                        .HasForeignKey("CrudUsingMigration.Models.Person", "Personid")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("users");
+                });
+
+            modelBuilder.Entity("CrudUsingMigration.Models.User", b =>
+                {
+                    b.Navigation("Person")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }
